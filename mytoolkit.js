@@ -92,10 +92,84 @@ var MyToolkit = (function() {
                 group.add(text);
             }
         }
-
     }
 
-    return {Button, Checkbox}
+    var RadioGroup = function(numOptions) {
+        // checking if 2 or more options are specified
+        if (numOptions >= 2) {
+            console.log("Created radio group with", numOptions, "options");
+        }
+        else {
+            console.log("Error: You must specify 2 or more options in a RadioGroup")
+        }
+
+        var clickEvent = null
+
+        var draw = SVG().addTo('body').size('100%','100%');
+        var group = draw.group()
+        var currentY = draw.y();
+        // for loop to create radio buttons
+        for (var i = 0; i < numOptions; i++){
+            var circle = draw.circle(30).fill('#fcd5ce').move(draw.x(), currentY);
+            group.add(circle);
+            currentY += 40;
+            // SVG draw space has to expand
+            draw.size('100%', draw.height() + 50);
+        }
+
+        group.click(function(event) {
+            if(clickEvent != null)
+                clickEvent(event);
+            // Color circles only, not text
+            if (SVG(event.target).type === "circle"){
+                SVG(event.target).fill('#ffb5a7');
+
+                // The selected circle retrieved from the mouse click
+                var selectedCY = SVG(event.target).cy();
+
+                var optionCounter = 0;
+                for (var child of group.children()){
+                    if (child.cy() === selectedCY) {
+                        console.log("You selected Choice", optionCounter + 1)
+                    }
+                    else {
+                        if (child.type === "circle") {
+                            child.fill('#fcd5ce');
+                        }
+                    }
+                    optionCounter += 1;
+                }
+
+            }
+        })
+
+        return {
+            move: function(x, y) {
+                group.move(x, y);
+                // 100 safety num - edit later?
+                var heightAddition = numOptions * 100;
+                draw.size('100%', heightAddition);
+            },
+            onclick: function(eventHandler){
+                clickEvent = eventHandler;
+            },
+            label: function(optionNumber, string) {
+                // Configuring option number
+                if ((1 < optionNumber) && (optionNumber > numOptions)) {
+                    console.log("Error: You must input a number from 1 to", numOptions);
+                }
+                else {
+                    optionNumber -= 1;
+                    // Adding caption
+                    var text = draw.text(string);
+                    text.center(text.cx() + group.children()[optionNumber].x() + 60, group.children()[optionNumber].cy()).font({family: 'Montserrat'});
+                    group.add(text);
+                }
+            }
+        }
+    }
+
+    return {Button, Checkbox, RadioGroup}
 
 }());
 
