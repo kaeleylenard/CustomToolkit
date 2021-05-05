@@ -6,7 +6,7 @@ var btn = new MyToolkit.Button;
 btn.onclick(function(e){
     console.log(e);
 });
-btn.label("Click!");
+btn.label("Click this button to start the demo");
 
 // Implement a MyToolkit Checkbox
 var check = new MyToolkit.Checkbox;
@@ -15,7 +15,7 @@ check.onclick(function(e){
     console.log(e);
 });
 //check.label("Really long text as an example for the checkbox.")
-check.label("hi")
+check.label("I am a student.")
 
 // Implement a MyToolkit RadioGroup
 var radios = new MyToolkit.RadioGroup(5);
@@ -28,3 +28,6 @@ radios.label(5, "Choice 5");
 radios.onclick(function(e){
     console.log(e);
 });
+
+// Implement a MyToolkit TextBox
+var textbox = new MyToolkit.TextBox("A text box with a lot of text");
