@@ -1,4 +1,6 @@
 import {MyToolkit} from './mytoolkit.js';
+import { SVG } from './svg.min.js';
+
 
 // Implement a MyToolkit Button
 var btn = new MyToolkit.Button;
@@ -30,4 +32,7 @@ radios.onclick(function(e){
 });
 
 // Implement a MyToolkit TextBox
-var textbox = new MyToolkit.TextBox("A text box with a lot of text");
+var textbox = new MyToolkit.TextBox;
+
+// Implement a MyToolkit ScrollBar
+var scrollbar = new MyToolkit.ScrollBar(300);

@@ -37,7 +37,7 @@ var MyToolkit = (function() {
                 var text = draw.text(string);
                 // Responsive button sized based on text length
                 rect.width(rect.width() + text.length() + 100);
-                text.move(rect.cx(), rect.cy() - 10).font({family: 'Montserrat', anchor: 'middle'});
+                text.move(rect.cx(), rect.cy() - 10).font({family: 'Verdana', anchor: 'middle'});
                 console.log("Text center", text.cx(), text.cy());
                 group.add(text);
             }
@@ -89,7 +89,7 @@ var MyToolkit = (function() {
                 var text = draw.text(string);
                 console.log("Rect X", rect.x(), "Rect Y", rect.y());
                 // 60 = 50 (width of checkbox) + 10 (for margin)
-                text.center(text.cx() + rect.x() + 60, rect.cy()).font({family: 'Montserrat'})
+                text.center(text.cx() + rect.x() + 60, rect.cy()).font({family: 'Verdana'})
                 console.log("Text X", text.x(), "Text Y", text.y());
                 group.add(text);
             }
@@ -164,38 +164,91 @@ var MyToolkit = (function() {
                     optionNumber -= 1;
                     // Adding caption
                     var text = draw.text(string);
-                    text.center(text.cx() + group.children()[optionNumber].x() + 60, group.children()[optionNumber].cy()).font({family: 'Montserrat'});
+                    text.center(text.cx() + group.children()[optionNumber].x() + 60, group.children()[optionNumber].cy()).font({family: 'Verdana'});
                     group.add(text);
                 }
             }
         }
     }
 
-    var TextBox = function(string) {
-        var draw = SVG().addTo('body').size('100%', '100%');
-        var rect = draw.rect(100, 50).fill('white').radius(10);
-        rect.stroke({width: 3, color: '#fcd5ce'});
-        rect.move(2, 10);
-        var group = draw.group();
-        group.add(rect);
-
-        var string = draw.text(string);
-        rect.width(rect.width() + string.length() + 100);
-        string.move(20, rect.cy() - 10).font({family: 'Montserrat', anchor: 'start'});
-        group.add(string);
-
-        var caret = draw.text("|");
-        caret.move(30 + string.length(), rect.cy() - 10).font({family: 'Montserrat', anchor: 'middle'});
-        group.add(caret);
-        caret.hide();
-
-        group.mouseover(function(){
-            caret.show();
-            caret.animate().attr({ fill: '#ffffff' }).animate({delay: 100}).attr({ fill: '#000000' }).animate({delay: 100}).attr({ fill: '#ffffff' }).animate({delay: 100}).attr({ fill: '#000000' })
+    var TextBox = function() {
+        var draw = SVG().addTo('body').size('750px', '100px');
+        var frame = draw.group()
+        frame.rect(500, 50).stroke({width: 3, color: '#fcd5ce'}).fill('white').radius(10);
+        frame.click(function(event) {
+            console.log("Window", event)
         })
 
-        group.mouseout(function(){
-            caret.hide();
+        var text = frame.text("").move(20, frame.cy() - 15).font({family: 'Verdana', anchor: 'start'});
+
+        var caret = frame.rect(2, 15).move(20, frame.cy() - 7);
+        var runner = caret.animate().width(0);
+        runner.loop(1000, 1, 0);
+
+
+        SVG.on(window, 'keyup', (event) => {
+            if (event.code === 'Backspace') {
+                // Remove last key; old and new lengths for cursor placement
+                var oldLength = text.length()
+                text.text(text.text().substring(0, text.text().length - 1))
+                var newLength = text.length();
+                caret.x(caret.x() - (oldLength - newLength))
+            }
+            else if (event.code === 'Space') {
+                text.text(text.text() + "\xa0")
+                caret.x(caret.x() + 5)
+                console.log(event)
+            }
+            else if ((event.code === "ShiftLeft") || (event.code === "ShiftRight")){
+                console.log("Shift pressed");
+            }
+            else {
+                console.log(caret.x());
+                if (caret.x() <= 475) {
+                    text.text(text.text() + event.key)
+                    caret.x(frame.x() + text.length() + 20)
+                    console.log(event);
+                }
+            }
+        })
+
+        frame.move(10, 10);
+
+
+        return {
+            move: function(x, y) {
+                frame.move(x, y);
+            }
+        }
+    }
+
+
+    var ScrollBar = function(height){
+        var draw = SVG().addTo('body').size('100%', height);
+        var group = draw.group();
+        var rect = draw.rect(25, height).fill('#fcd5ce').radius(10);
+        group.add(rect);
+
+        var clickEvent = null
+
+        // 25 is width of scrollbar
+        var slider = draw.rect(25, 100).fill('#ffb5a7').radius(10);
+        group.add(slider);
+        console.log("Scroll thumb position:", slider.x(), slider.y());
+
+        // Move slider
+        rect.click(function(event) {
+            if(clickEvent != null)
+                clickEvent(event);
+            console.log(event);
+
+            // Preventing cutoffs
+            if (event.offsetY >= rect.height() - slider.height()) {
+                slider.move(slider.x(), rect.height() - slider.height())
+            }
+            else {
+                slider.move(slider.x(), event.offsetY);
+            }
         })
 
         return {
@@ -205,7 +258,7 @@ var MyToolkit = (function() {
         }
     }
 
-    return {Button, Checkbox, RadioGroup, TextBox}
+    return {Button, Checkbox, RadioGroup, TextBox, ScrollBar}
 
 }());
 
