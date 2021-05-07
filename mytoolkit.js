@@ -180,7 +180,6 @@ var MyToolkit = (function() {
         })
 
         var text = frame.text("").move(20, frame.cy() - 15).font({family: 'Verdana', anchor: 'start'});
-
         var caret = frame.rect(2, 15).move(20, frame.cy() - 7);
         var runner = caret.animate().width(0);
         runner.loop(1000, 1, 0);
@@ -226,28 +225,41 @@ var MyToolkit = (function() {
     var ScrollBar = function(height){
         var draw = SVG().addTo('body').size('100%', height);
         var group = draw.group();
-        var rect = draw.rect(25, height).fill('#fcd5ce').radius(10);
+        var rect = draw.rect(50, height).fill('#fcd5ce').radius(10);
         group.add(rect);
 
         var clickEvent = null
 
         // 25 is width of scrollbar
-        var slider = draw.rect(25, 100).fill('#ffb5a7').radius(10);
+        var slider = draw.rect(50, 100).fill('#ffb5a7').radius(10);
         group.add(slider);
         console.log("Scroll thumb position:", slider.x(), slider.y());
 
-        // Move slider
-        rect.click(function(event) {
-            if(clickEvent != null)
-                clickEvent(event);
-            console.log(event);
+        var mouseDown = false;
+        var downEvent;
 
-            // Preventing cutoffs
-            if (event.offsetY >= rect.height() - slider.height()) {
-                slider.move(slider.x(), rect.height() - slider.height())
-            }
-            else {
-                slider.move(slider.x(), event.offsetY);
+        slider.mousedown(function(event){
+            mouseDown = true;
+            downEvent = event;
+        })
+
+        draw.mouseup(function(){
+            mouseDown = false;
+        })
+
+        slider.mousemove(function(event){
+            if (mouseDown) {
+                if (slider.y() < 0){
+                    slider.y(0);
+                }
+                else if (slider.y() > rect.height() - slider.height()){
+                    slider.y(rect.height() - slider.height());
+                }
+                else{
+                    if (((event.offsetY - 25) >= 0) && ((event.offsetY - 25) <= rect.height() - slider.height())){
+                        slider.y(event.offsetY - 25);
+                    }
+                }
             }
         })
 
