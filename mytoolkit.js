@@ -1,45 +1,72 @@
 import {SVG} from './svg.min.js';
 
+/**
+ * Custom widget library.
+ *
+ * @author Kaeley Lenard
+ * @type {{RadioGroup, Button, Checkbox, TextBox, ScrollBar}}
+ */
 var MyToolkit = (function() {
-
+    /**
+     * Creates an SVG of a button.
+     *
+     * @returns {{move: move, onclick: onclick, label: label}}
+     * @constructor
+     */
     var Button = function(){
-        var draw = SVG().addTo('body').size('100%','100%');
+        var draw = SVG().addTo('body').size('100%', '100%');
         var group = draw.group();
-        var rect = draw.rect(100,50).fill('#fcd5ce').radius(10);
+        var rect = draw.rect(100,50).fill('#ffb5a7').radius(10);
         group.add(rect);
-
         var clickEvent = null;
 
         rect.mouseover(function(){
-            this.fill({ color: '#ffb5a7'});
+            this.fill({ color: '#fec89a'});
         })
         rect.mouseout(function(){
-            this.fill({ color: '#fcd5ce'});
+            this.fill({ color: '#ffb5a7'});
         })
         rect.mouseup(function(){
-            this.fill({ color: '#fcd5ce'});
+            this.fill({ color: '#ffb5a7'});
         })
         rect.click(function(event){
-            this.fill({ color: '#fec89a'});
+            this.fill({ color: '#e0fbfc'});
             if(clickEvent != null)
                 clickEvent(event);
         })
+
         return {
+            /**
+             * Moves the button to a specific (x, y) coordinate on the page.
+             *
+             * @param {Number} x The desired x coordinate of the button.
+             * @param {Number} y The desired y coordinate of the button.
+             */
             move: function(x, y) {
-                console.log("Rectangle X/Y before move", rect.x(), rect.y());
-                rect.move(x, y);
-                console.log("Rectangle X/Y after move", rect.x(), rect.y());
+                draw.transform({
+                    translateX: x,
+                    translateY: y
+                })
             },
+            /**
+             * Captures the MouseEvent when the button is clicked.
+             *
+             * @param {MouseEvent} eventHandler
+             */
             onclick: function(eventHandler){
                 clickEvent = eventHandler;
             },
+            /**
+             * Allows the setting of a custom label on the button.
+             *
+             * @param {String} The text to be displayed on the button.
+             */
             label: function(string) {
                 var text = draw.text(string);
-                // Responsive button sized based on text length
-                rect.width(rect.width() + text.length() + 100);
+                rect.width(rect.width() + text.length() + 100); // Responsive button sized based on text length
                 text.move(rect.cx(), rect.cy() - 10).font({family: 'Verdana', anchor: 'middle'});
-                console.log("Text center", text.cx(), text.cy());
                 group.add(text);
+                draw.size(rect.width(), rect.height()); // Readjust size of SVG frame based on new button size
             }
         }
     }
