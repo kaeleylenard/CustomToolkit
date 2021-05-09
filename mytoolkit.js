@@ -4,30 +4,37 @@ import {SVG} from './svg.min.js';
  * Custom widget library.
  *
  * @author Kaeley Lenard
- * @type {{RadioGroup, Button, Checkbox, TextBox, ScrollBar}}
+ * @type {{RadioGroup: (function(*=): {move: function(*=, *=): void, onclick: function(*): void, label: function(*, *=): void}), Button: (function(): {move: function(Number, Number): void, onclick: function(MouseEvent): void, label: function(*=): void}), Checkbox: (function(): {move: function(Number, Number): void, onclick: function(MouseEvent): void, label: function(*=): void}), TextBox: (function(): {move: function(*=, *=): void}), ScrollBar: (function(*=): {move: function(*=, *=): void})}}
  */
 var MyToolkit = (function() {
+    var globalWindow = SVG().addTo('body').size('100%', '100%');
+    var globalGroup = globalWindow.group();
+
+    var Window = function(width, height){
+        globalWindow.size(width, height);
+    }
+
     /**
-     * Creates an SVG of a button.
+     * Creates a button.
      *
-     * @returns {{move: move, onclick: onclick, label: label}}
+     * @returns {{move, onclick, label}}
      * @constructor
      */
     var Button = function(){
-        var draw = SVG().addTo('body').size('100%', '100%');
-        var group = draw.group();
-        var rect = draw.rect(100,50).fill('#ffb5a7').radius(10);
+        var group = globalWindow.group();
+        var rect = globalWindow.rect(100,50).fill('#fcd5ce').radius(10);
         group.add(rect);
+        globalGroup.add(group);
         var clickEvent = null;
 
         rect.mouseover(function(){
-            this.fill({ color: '#fec89a'});
+            this.fill({ color: '#ffb5a7'});
         })
         rect.mouseout(function(){
-            this.fill({ color: '#ffb5a7'});
+            this.fill({ color: '#fcd5ce'});
         })
         rect.mouseup(function(){
-            this.fill({ color: '#ffb5a7'});
+            this.fill({ color: '#fcd5ce'});
         })
         rect.click(function(event){
             this.fill({ color: '#e0fbfc'});
@@ -43,10 +50,7 @@ var MyToolkit = (function() {
              * @param {Number} y The desired y coordinate of the button.
              */
             move: function(x, y) {
-                draw.transform({
-                    translateX: x,
-                    translateY: y
-                })
+                group.move(x, y);
             },
             /**
              * Captures the MouseEvent when the button is clicked.
@@ -59,26 +63,30 @@ var MyToolkit = (function() {
             /**
              * Allows the setting of a custom label on the button.
              *
-             * @param {String} The text to be displayed on the button.
+             * @param {String} string The text to be displayed on the button.
              */
             label: function(string) {
-                var text = draw.text(string);
+                var text = globalWindow.text(string);
                 rect.width(rect.width() + text.length() + 100); // Responsive button sized based on text length
                 text.move(rect.cx(), rect.cy() - 10).font({family: 'Verdana', anchor: 'middle'});
                 group.add(text);
-                draw.size(rect.width(), rect.height()); // Readjust size of SVG frame based on new button size
             }
         }
     }
 
+    /**
+     * Creates a checkbox.
+     *
+     * @returns {{move, onclick, label}}
+     * @constructor
+     */
     var Checkbox = function() {
-        var draw = SVG().addTo('body').size('100%','100%');
-        var group = draw.group();
-        var rect = draw.rect(50, 50).fill('#fcd5ce').radius(10);
+        var group = globalWindow.group();
+        var rect = globalWindow.rect(50, 50).fill('#fcd5ce').radius(10);
         group.add(rect);
+        globalGroup.add(group);
 
-        // Checkmark
-        var text = draw.text('✓');
+        var text = globalWindow.text('✓');
         text.center(rect.cx(), rect.cy());
         group.add(text);
         text.hide();
@@ -91,70 +99,81 @@ var MyToolkit = (function() {
                 clickEvent(event);
             if (isClicked === false) {
                 this.fill({color: '#ffb5a7'});
-                // Add checkmark
-                text.show();
+                text.show(); // Add checkmark
                 isClicked = true;
             }
             else {
                 this.fill({color: '#fcd5ce'});
-                // Remove checkmark
-                text.hide();
+                text.hide(); // Remove checkmark
                 isClicked = false;
             }
-
         })
 
         return {
+            /**
+             * Moves the button to a specific (x, y) coordinate on the page.
+             *
+             * @param {Number} x The desired x coordinate of the button.
+             * @param {Number} y The desired y coordinate of the button.
+             */
             move: function(x, y) {
-                rect.move(x, y);
-                text.move(x, y);
+                group.move(x, y);
             },
+            /**
+             * Captures the MouseEvent when the button is clicked.
+             *
+             * @param {MouseEvent} eventHandler
+             */
             onclick: function(eventHandler){
                 clickEvent = eventHandler;
             },
+            /**
+             * Allows the setting of a custom label on the button.
+             *
+             * @param {String} string The text to be displayed on the button.
+             */
             label: function(string) {
-                var text = draw.text(string);
-                console.log("Rect X", rect.x(), "Rect Y", rect.y());
-                // 60 = 50 (width of checkbox) + 10 (for margin)
-                text.center(text.cx() + rect.x() + 60, rect.cy()).font({family: 'Verdana'})
-                console.log("Text X", text.x(), "Text Y", text.y());
+                var text = globalWindow.text(string);
+                text.center(text.cx() + rect.x() + 60, rect.cy()).font({family: 'Verdana'}) // 60 = 50 (width of checkbox) + 10 (for margin)
                 group.add(text);
             }
         }
     }
 
+    /**
+     * Creates a group of 2+ radio buttons.
+     *
+     * @param {Number} numOptions The number of radio buttons to be present (must be greater than 2).
+     * @returns {{move, onclick, label}}
+     * @constructor
+     */
     var RadioGroup = function(numOptions) {
-        // checking if 2 or more options are specified
         if (numOptions >= 2) {
             console.log("Created radio group with", numOptions, "options");
         }
         else {
-            console.log("Error: You must specify 2 or more options in a RadioGroup")
+            console.log("Error: You must specify 2 or more options in a RadioGroup");
         }
 
         var clickEvent = null
 
-        var draw = SVG().addTo('body').size('100%','100%');
-        var group = draw.group()
-        var currentY = draw.y();
-        // for loop to create radio buttons
+        var group = globalWindow.group()
+        var currentY = globalWindow.y();
         for (var i = 0; i < numOptions; i++){
-            var circle = draw.circle(30).fill('#fcd5ce').move(draw.x(), currentY);
+            var circle = globalWindow.circle(30).fill('#fcd5ce').move(globalWindow.x(), currentY);
             group.add(circle);
+            globalGroup.add(group);
             currentY += 40;
-            // SVG draw space has to expand
-            draw.size('100%', draw.height() + 50);
         }
 
         group.click(function(event) {
             if(clickEvent != null)
                 clickEvent(event);
-            // Color circles only, not text
-            if (SVG(event.target).type === "circle"){
-                SVG(event.target).fill('#ffb5a7');
 
-                // The selected circle retrieved from the mouse click
-                var selectedCY = SVG(event.target).cy();
+            if (SVG(event.target).type === "circle"){
+                SVG(event.target).fill('#e0fbfc');
+
+                var selectedCY = SVG(event.target).cy(); // The selected circle retrieved from the mouse click
 
                 var optionCounter = 0;
                 for (var child of group.children()){
@@ -175,9 +194,6 @@ var MyToolkit = (function() {
         return {
             move: function(x, y) {
                 group.move(x, y);
-                // 100 safety num - edit later?
-                var heightAddition = numOptions * 100;
-                draw.size('100%', heightAddition);
             },
             onclick: function(eventHandler){
                 clickEvent = eventHandler;
@@ -190,7 +206,7 @@ var MyToolkit = (function() {
                 else {
                     optionNumber -= 1;
                     // Adding caption
-                    var text = draw.text(string);
+                    var text = globalWindow.text(string);
                     text.center(text.cx() + group.children()[optionNumber].x() + 60, group.children()[optionNumber].cy()).font({family: 'Verdana'});
                     group.add(text);
                 }
@@ -199,12 +215,13 @@ var MyToolkit = (function() {
     }
 
     var TextBox = function() {
-        var draw = SVG().addTo('body').size('750px', '100px');
-        var frame = draw.group()
-        frame.rect(500, 50).stroke({width: 3, color: '#fcd5ce'}).fill('white').radius(10);
+        var frame = globalWindow.group()
+        frame.rect(300, 50).stroke({width: 3, color: '#fcd5ce'}).fill('white').radius(10);
         frame.click(function(event) {
             console.log("Window", event)
         })
+        frame.move(3, 3); // To prevent stroke edges from cutting off
+        globalGroup.add(frame);
 
         var text = frame.text("").move(20, frame.cy() - 15).font({family: 'Verdana', anchor: 'start'});
         var caret = frame.rect(2, 15).move(20, frame.cy() - 7);
@@ -229,16 +246,13 @@ var MyToolkit = (function() {
                 console.log("Shift pressed");
             }
             else {
-                console.log(caret.x());
-                if (caret.x() <= 475) {
+                if (text.length() < 250) {
                     text.text(text.text() + event.key)
                     caret.x(frame.x() + text.length() + 20)
                     console.log(event);
                 }
             }
         })
-
-        frame.move(10, 10);
 
 
         return {
@@ -250,15 +264,14 @@ var MyToolkit = (function() {
 
 
     var ScrollBar = function(height){
-        var draw = SVG().addTo('body').size('100%', height);
-        var group = draw.group();
-        var rect = draw.rect(50, height).fill('#fcd5ce').radius(10);
+        var group = globalWindow.group();
+        var rect = globalWindow.rect(50, height).fill('#fcd5ce').radius(10);
         group.add(rect);
+        globalGroup.add(group);
 
         var clickEvent = null
 
-        // 25 is width of scrollbar
-        var slider = draw.rect(50, 100).fill('#ffb5a7').radius(10);
+        var slider = globalWindow.rect(50, height/3).fill('#ffb5a7').radius(10);
         group.add(slider);
         console.log("Scroll thumb position:", slider.x(), slider.y());
 
@@ -270,22 +283,22 @@ var MyToolkit = (function() {
             downEvent = event;
         })
 
-        draw.mouseup(function(){
+        globalWindow.mouseup(function(){
             mouseDown = false;
         })
 
         slider.mousemove(function(event){
+            console.log(slider.y(), rect.y());
             if (mouseDown) {
-                if (slider.y() < 0){
-                    slider.y(0);
+                if (slider.y() < rect.y()){
+                    slider.y(rect.y())
                 }
-                else if (slider.y() > rect.height() - slider.height()){
-                    slider.y(rect.height() - slider.height());
+                else if (slider.y() > rect.y() + height - height/3){
+                    slider.y(rect.y() + height - height/3)
                 }
                 else{
-                    if (((event.offsetY - 25) >= 0) && ((event.offsetY - 25) <= rect.height() - slider.height())){
-                        slider.y(event.offsetY - 25);
-                    }
+                    if (((event.offsetY - 25) >= rect.y()) && ((event.offsetY - 25) <= rect.y() + height - height/3))
+                    slider.y(event.offsetY - 25);
                 }
             }
         })
@@ -297,7 +310,7 @@ var MyToolkit = (function() {
         }
     }
 
-    return {Button, Checkbox, RadioGroup, TextBox, ScrollBar}
+    return {Window, Button, Checkbox, RadioGroup, TextBox, ScrollBar}
 
 }());
 
