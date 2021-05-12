@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: Textbox</title>
+    <title>JSDoc: Class: TextBox</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: Textbox</h1>
+    <h1 class="page-title">Class: TextBox</h1>
 
     
 
@@ -29,7 +29,7 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="MyToolkit.html">MyToolkit</a>.</span>Textbox<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h2>
+            <span class="ancestors"><a href="MyToolkit.html">MyToolkit</a>.</span>TextBox<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h2>
         
     
 </header>
@@ -42,7 +42,7 @@
     
 
     
-    <h4 class="name" id="Textbox"><span class="type-signature"></span>new Textbox<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="TextBox"><span class="type-signature"></span>new TextBox<span class="signature">()</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -50,7 +50,7 @@
 
 
 <div class="description">
-    Creates a text box.
+    Creates a textbox.
 </div>
 
 
@@ -168,7 +168,7 @@
     
 
     
-    <h4 class="name" id="~getText"><span class="type-signature">(inner) </span>getText<span class="signature">()</span><span class="type-signature"> &rarr; {String}</span></h4>
+    <h4 class="name" id="~onKeyUp"><span class="type-signature">(inner) </span>onKeyUp<span class="signature">(keyUpEventHandler)</span><span class="type-signature"></span></h4>
     
 
     
@@ -176,113 +176,7 @@
 
 
 <div class="description">
-    Gets the text inputted by the user in the text box.
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mytoolkit.js.html">mytoolkit.js</a>, <a href="mytoolkit.js.html#line422">line 422</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">String</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="~move"><span class="type-signature">(inner) </span>move<span class="signature">(x, y)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    Moves the text box to a specific (x, y) coordinate in the window.
+    Captures the Event when a key is released.
 </div>
 
 
@@ -318,13 +212,13 @@
 
         <tr>
             
-                <td class="name"><code>x</code></td>
+                <td class="name"><code>keyUpEventHandler</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Number</span>
+<span class="param-type">Event</span>
 
 
             
@@ -334,30 +228,7 @@
 
             
 
-            <td class="description last">The desired x coordinate of the text box.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>y</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The desired y coordinate of the text box.</td>
+            <td class="description last">Event fired upon key release.</td>
         </tr>
 
     
@@ -398,7 +269,144 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mytoolkit.js.html">mytoolkit.js</a>, <a href="mytoolkit.js.html#line410">line 410</a>
+        <a href="mytoolkit.js.html">mytoolkit.js</a>, <a href="mytoolkit.js.html#line429">line 429</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~onStateChange"><span class="type-signature">(inner) </span>onStateChange<span class="signature">(currentEventHandler)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Captures the Event when the textbox's state is changed.
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>currentEventHandler</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Event</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Event fired upon text box state change.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="mytoolkit.js.html">mytoolkit.js</a>, <a href="mytoolkit.js.html#line440">line 440</a>
     </li></ul></dd>
     
 
@@ -444,13 +452,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="MyToolkit.html">MyToolkit</a></li></ul><h3>Classes</h3><ul><li><a href="MyToolkit.Button.html">Button</a></li><li><a href="MyToolkit.Checkbox.html">Checkbox</a></li><li><a href="MyToolkit.RadioGroup.html">RadioGroup</a></li><li><a href="MyToolkit.Scrollbar.html">Scrollbar</a></li><li><a href="MyToolkit.Textbox.html">Textbox</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Namespaces</h3><ul><li><a href="MyToolkit.html">MyToolkit</a></li></ul><h3>Classes</h3><ul><li><a href="MyToolkit.Button.html">Button</a></li><li><a href="MyToolkit.Checkbox.html">Checkbox</a></li><li><a href="MyToolkit.ProgressBar.html">ProgressBar</a></li><li><a href="MyToolkit.RadioGroup.html">RadioGroup</a></li><li><a href="MyToolkit.ScrollBar.html">ScrollBar</a></li><li><a href="MyToolkit.TextBox.html">TextBox</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Tue May 11 2021 19:25:09 GMT-0700 (Pacific Daylight Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.6</a> on Tue May 11 2021 23:19:13 GMT-0700 (Pacific Daylight Time)
 </footer>
 
 <script> prettyPrint(); </script>

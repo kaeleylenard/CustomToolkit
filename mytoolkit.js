@@ -7,7 +7,7 @@ import {SVG} from './svg.min.js';
  *
  * @author Kaeley Lenard
  * @namespace MyToolkit
- * @type {{Window: Window, RadioGroup: (function(Number): {getSelected: (function(): number), move: MyToolkit.RadioGroup.move, onClick: MyToolkit.RadioGroup.onClick, label: MyToolkit.RadioGroup.label}), Button: (function(): {onOut: function(Event): void, move: function(Number, Number): void, onClick: function(Event): void, label: function(String): void, onOver: function(Event): void, onUp: function(Event): void}), Checkbox: (function(): {onCheck: function(): boolean, move: function(Number, Number): void, onClick: function(Event): void, label: function(String): void}), TextBox: (function(): {move: function(Number, Number): void, getText: function(): String}), ProgressBar: (function(): {move: function(*=, *=): void}), ScrollBar: (function(Number): {move: function(Number, Number): void, getScrollPosition: function(): string})}}
+ * @type {{Window: Window, RadioGroup: (function(Number): {getSelected: (function(): *), move: MyToolkit.RadioGroup.move, onClick: MyToolkit.RadioGroup.onClick, getActive: (function(): boolean), onStateChange: MyToolkit.RadioGroup.onStateChange, label: MyToolkit.RadioGroup.label}), Button: (function(): {move: function(Number, Number): void, onClick: function(Event): void, onStateChange: function(Event): void, label: function(String): void}), Checkbox: (function(): {move: function(Number, Number): void, onClick: function(Event): void, onStateChange: function(Event): void, label: function(String): void, getCheckedState: function(): boolean}), TextBox: (function(): {move: function(Number, Number): void, onKeyUp: function(Event): void, getText: function(): String, onStateChange: function(Event): void}), ProgressBar: (function(): {getInc: function(): Number, move: function(Number, Number): void, increment: function(Number): void, setWidth: function(Number): void, setInc: function(Number): void}), ScrollBar: (function(Number): {move: function(Number, Number): void, getDirection: function(): String, onStateChange: function(Event): void, onMove: function(Event): void, getScrollPosition: function(): String})}}
  */
 var MyToolkit = (function() {
     var globalWindow = SVG().addTo('body').size('100%', '100%');
@@ -346,11 +346,11 @@ var MyToolkit = (function() {
     }
 
     /**
-     * Creates a text box.
+     * Creates a textbox.
      *
-     * @namespace Textbox
+     * @namespace TextBox
      * @memberOf MyToolkit
-     * @returns {{move: MyToolkit.Button.move, getText: (function(): *)}}
+     * @returns {{move: MyToolkit.Textbox.move, onKeyUp: MyToolkit.TextBox.onKeyUp, getText: (function(): *), onStateChange: MyToolkit.TextBox.onStateChange}}
      * @constructor
      */
     var TextBox = function() {
@@ -367,23 +367,31 @@ var MyToolkit = (function() {
         var runner = caret.animate().width(0);
         runner.loop(1000, 1, 0);
         caret.hide();
+        var keyUpEvent = null;
+        var currentEvent = null;
 
-        frame.mouseover(function(){
-            console.log("[mouseOver Event] State: Ready")
+        frame.mouseover(function(event){
             caret.show();
             caret.x(caret.x() + 20);
             caret.y(caret.y() + 20);
+            if(currentEvent != null)
+                currentEvent(event);
         })
 
-        frame.mouseout(function(){
-            console.log("[mouseOut Event] State: Idle")
+        frame.mouseout(function(event){
             caret.hide();
             caret.x(caret.x() - 20);
             caret.y(caret.y() - 20);
+            if(currentEvent != null)
+                currentEvent(event);
         })
 
         SVG.on(window, 'keyup', (event) => {
-            console.log("[keyUp Event] State: Execute")
+            if (keyUpEvent != null)
+                keyUpEvent(event)
+            if(currentEvent != null)
+                currentEvent(event);
+
             if (event.code === 'Backspace') {
                 var oldLength = text.length() // Remove last key; old and new lengths for cursor placement
                 text.text(text.text().substring(0, text.text().length - 1))
@@ -395,13 +403,12 @@ var MyToolkit = (function() {
                 caret.x(caret.x() + 5)
             }
             else if ((event.code === "ShiftLeft") || (event.code === "ShiftRight")){
-                console.log("Shift pressed");
+
             }
             else {
                 if (text.length() < 250) {
                     text.text(text.text() + event.key)
                     caret.x(frame.x() + text.length() + 20)
-                    console.log("Text entered:", text.text());
                 }
             }
         })
@@ -420,6 +427,28 @@ var MyToolkit = (function() {
                 frame.move(x, y);
             },
             /**
+             * Captures the Event when a key is released.
+             *
+             * @memberOf MyToolkit.TextBox
+             * @function onKeyUp
+             * @inner
+             * @param {Event} keyUpEventHandler Event fired upon key release.
+             */
+            onKeyUp: function(keyUpEventHandler){
+                keyUpEvent = keyUpEventHandler;
+            },
+            /**
+             * Captures the Event when the textbox's state is changed.
+             *
+             * @memberOf MyToolkit.TextBox
+             * @function onStateChange
+             * @inner
+             * @param {Event} currentEventHandler Event fired upon text box state change.
+             */
+            onStateChange: function(currentEventHandler){
+                currentEvent = currentEventHandler;
+            },
+            /**
              * Gets the text inputted by the user in the text box.
              *
              * @memberOf MyToolkit.Textbox
@@ -436,10 +465,10 @@ var MyToolkit = (function() {
     /**
      * Creates a scroll bar.
      *
-     * @namespace Scrollbar
+     * @namespace ScrollBar
      * @memberOf MyToolkit
      * @param {Number} height The desired height of the scroll bar.
-     * @returns {{move: MyToolkit.Button.move, getScrollPosition: (function(): string)}}
+     * @returns {{move: MyToolkit.ScrollBar.move, getDirection: (function(): *), onStateChange: MyToolkit.ScrollBar.onStateChange, onMove: MyToolkit.ScrollBar.onMove, getScrollPosition: (function(): string)}}
      * @constructor
      */
     var ScrollBar = function(height){
@@ -450,19 +479,31 @@ var MyToolkit = (function() {
 
         var slider = globalWindow.rect(50, height/3).fill('#ffb5a7').radius(10);
         group.add(slider);
+        var moveEvent = null;
+        var currentEvent = null;
 
         var mouseDown = false;
         var lastPosition = rect.y();
+        var direction;
 
         slider.mousedown(function(event){
+            if (currentEvent != null)
+                currentEvent(event)
             mouseDown = true;
         })
 
         globalWindow.mouseup(function(){
+            if (currentEvent != null)
+                currentEvent(event)
             mouseDown = false;
         })
 
         slider.mousemove(function(event){
+            if(moveEvent != null)
+                moveEvent(event)
+            if (currentEvent != null)
+                currentEvent(event)
+
             if (mouseDown) {
                 if (slider.y() < rect.y()){
                     slider.y(rect.y())
@@ -476,11 +517,13 @@ var MyToolkit = (function() {
                     }
 
                     if (event.offsetY > lastPosition) {
-                        console.log("Scrollbar moved downwards. State: Execute");
+                        direction = "Downwards"
+                        //console.log("Scrollbar moved downwards. State: Execute");
                         lastPosition = event.offsetY;
                     }
                     else {
-                        console.log("Scrollbar moved upwards. State: Execute");
+                        direction = "Upwards"
+                        //console.log("Scrollbar moved upwards. State: Execute");
                     }
                 }
             }
@@ -490,7 +533,7 @@ var MyToolkit = (function() {
             /**
              * Moves the scroll bar to a specific (x, y) coordinate in the window.
              *
-             * @memberOf MyToolkit.Scrollbar
+             * @memberOf MyToolkit.ScrollBar
              * @function move
              * @inner
              * @param {Number} x The desired x coordinate of the scroll bar.
@@ -502,40 +545,134 @@ var MyToolkit = (function() {
             /**
              * Returns the (x, y) coordinates of the slider within the scroll bar.
              *
-             * @memberOf MyToolkit.Scrollbar
+             * @memberOf MyToolkit.ScrollBar
              * @function getScrollPosition
              * @inner
-             * @returns {string}
+             * @returns {String}
              */
             getScrollPosition: function() {
-                return "Slider position: " + "(" + slider.x() + "," + slider.y() + ")";
+                return "(" + slider.x() + "," + slider.y() + ")";
+            },
+            /**
+             * Captures the Event when the mouse is moved.
+             *
+             * @memberOf MyToolkit.ScrollBar
+             * @function onMove
+             * @inner
+             * @param {Event} moveEventHandler Event fired upon mouse move.
+             */
+            onMove: function(moveEventHandler){
+                moveEvent = moveEventHandler
+            },
+            /**
+             * Gets the direction of the scroll bar's movement, upwards or downwards.
+             *
+             * @memberOf MyToolkit.ScrollBar
+             * @function getDirection
+             * @inner
+             * @returns {String} direction
+             */
+            getDirection: function(){
+                return direction;
+            },
+            /**
+             * Captures the Event when the scroll bar's state is changed.
+             *
+             * @memberOf MyToolkit.ScrollBar
+             * @function onStateChange
+             * @inner
+             * @param {Event} currentEventHandler Event fired upon scroll bar state change.
+             */
+            onStateChange: function(currentEventHandler){
+                currentEvent = currentEventHandler;
             }
         }
     }
 
+    /**
+     * Creates a progress bar.
+     *
+     * @namespace ProgressBar
+     * @memberOf MyToolkit
+     * @returns {{getInc: (function(): number), move: MyToolkit.ProgressBar.move, increment: MyToolkit.ProgressBar.increment, setWidth: MyToolkit.ProgressBar.setWidth, setInc: MyToolkit.ProgressBar.setInc}}
+     * @constructor
+     */
     var ProgressBar = function(){
         var group = globalWindow.group();
         var rect = globalWindow.rect(300, 50).fill('#fcd5ce').radius(10);
         group.add(rect);
         globalGroup.add(group);
 
-        var progressRect = globalWindow.rect(10, 50).fill('#ffb5a7').radius(10);
+        var progressRect = globalWindow.rect(0, 50).fill('#ffb5a7').radius(10);
         group.add(progressRect);
+        var incValue = 0;
 
-        var runner = progressRect.animate();
-
-        runner.during(function(){
-            progressRect.width(progressRect.width() + 1)
-            if (progressRect.width() > rect.width()){
-                progressRect.width(0);
-            }
-        })
-        runner.loop();
-
+        var incrementEvent = null;
 
         return {
+            /**
+             * Moves the progress bar to a specific (x, y) coordinate in the window.
+             *
+             * @memberOf MyToolkit.ProgressBar
+             * @function move
+             * @inner
+             * @param {Number} x The desired x coordinate of the progress bar.
+             * @param {Number} y The desired y coordinate of the progress bar.
+             */
             move: function(x, y) {
                 group.move(x, y);
+            },
+            /**
+             * Sets the width of the progress bar.
+             *
+             * @memberOf MyToolkit.ProgressBar
+             * @function setWidth
+             * @inner
+             * @param {Number} width The desired width of the progress bar.
+             */
+            setWidth: function(width){
+                rect.width(width);
+            },
+            /**
+             * Sets the increment value of the progress bar.
+             *
+             * @memberOf MyToolkit.ProgressBar
+             * @function setInc
+             * @inner
+             * @param {Number} increment The desired increment value of the progress bar.
+             */
+            setInc: function(increment){
+                if ((increment <= 100) && (increment >= 0)){
+                    progressRect.width(rect.width() * (increment / 100))
+                }
+                incValue = increment;
+            },
+            /**
+             * Gets the increment value of the progress bar.
+             *
+             * @memberOf MyToolkit.ProgressBar
+             * @function getInc
+             * @inner
+             * @returns {Number} incValue
+             */
+            getInc: function(){
+                return incValue;
+            },
+            /**
+             * Used to increment the progress bar with a timer.
+             *
+             * @memberOf MyToolkit.ProgressBar
+             * @function increment
+             * @inner
+             * @param {Number} incValue A value between 0-100 to increment the value of the progress bar.
+             */
+            increment: function(incValue){
+                if ((progressRect.width() + incValue) <= rect.width()){
+                    progressRect.width(progressRect.width() + incValue);
+                }
+                else{
+                    progressRect.width(0);
+                }
             }
         }
     }

@@ -65,14 +65,61 @@ radios.onStateChange(function(e){
 // Implement a MyToolkit TextBox
 var textbox = new MyToolkit.TextBox;
 textbox.move(350, 50);
-console.log("Getting text:", textbox.getText())
+textbox.onKeyUp((function(e){
+    console.log(e);
+    console.log("Getting text:", textbox.getText())
+}))
+textbox.onStateChange((function(e){
+    if (e.type === 'mouseover'){
+        console.log("[Text box] Current state: Ready", e);
+    }
+    else if (e.type === 'mouseout'){
+        console.log("[Text box] Current state: Idle", e);
+    }
+    else if (e.type === 'keyup'){
+        console.log("[Text box] Current state: Execute", e);
+    }
+}))
 
 
 // Implement a MyToolkit ScrollBar
 var scrollbar = new MyToolkit.ScrollBar(200);
 scrollbar.move(350, 125);
-console.log(scrollbar.getScrollPosition());
+scrollbar.onMove((function(e){
+    console.log(scrollbar.getScrollPosition());
+    if (scrollbar.getDirection() != null){
+        console.log(scrollbar.getDirection())
+    }
+}))
+scrollbar.onStateChange((function(e){
+    if (e.type === 'mousedown'){
+        console.log("[Scroll bar] Current state: Ready", e);
+    }
+    else if (e.type === 'mousemove'){
+        console.log("[Scroll bar] Current state: Execute", e);
+    }
+    else if (e.type === 'mouseup'){
+        console.log("[Scroll bar] Current state: Idle", e);
+    }
+}))
+
 
 // Implement a MyToolkit ProgressBar
 var progressbar = new MyToolkit.ProgressBar;
-progressbar.move(350, 350)
+progressbar.setWidth(300);
+progressbar.move(350, 350);
+progressbar.setInc(2);
+console.log("Progress bar increment:", progressbar.getInc());
+progressbar.increment(20)
+setInterval(inc, 750);
+
+let p = 0;
+function inc(){
+    p += 20;
+    if (p > 300){
+        p = 0;
+        progressbar.increment(p)
+    } else {
+        progressbar.increment(20);
+    }
+}
