@@ -21,7 +21,7 @@ var MyToolkit = (function() {
      *
      * @namespace Button
      * @memberOf MyToolkit
-     * @returns {{onOut: onOut, move: move, onClick: onClick, label: label, onUp: onUp, onOver: onOver}}
+     * @returns {{move: MyToolkit.Button.move, onClick: MyToolkit.Button.onClick, onStateChange: MyToolkit.Button.onStateChange, label: MyToolkit.Button.label}}
      * @constructor
      */
     var Button = function(){
@@ -31,34 +31,25 @@ var MyToolkit = (function() {
         globalGroup.add(group);
 
         // State Changes
-        var overEvent = null;
         var clickEvent = null;
-        var upEvent = null;
-        var outEvent = null;
+        var currentEvent = null;
 
         rect.click(function(event){
-            console.log("[Click Event] Button is clicked. State: Execute");
             this.fill({ color: '#e0fbfc'});
             if(clickEvent != null)
                 clickEvent(event);
+            if(currentEvent != null)
+                currentEvent(event);
         })
         rect.mouseover(function(event){
-            console.log("[mouseOver Event] Button is not clicked. State: Ready");
             this.fill({ color: '#ffb5a7'});
-            if (overEvent != null)
-                overEvent(event);
+            if(currentEvent != null)
+                currentEvent(event);
         })
         rect.mouseout(function(event){
-            console.log("[mouseOut Event] Button is not clicked. State: Idle");
             this.fill({ color: '#fcd5ce'});
-            if (outEvent != null)
-                outEvent(event);
-        })
-        rect.mouseup(function(event){
-            console.log("[mouseUp Event] Button is not clicked. State: Execute")
-            this.fill({ color: '#fcd5ce'});
-            if (upEvent != null)
-                upEvent(event);
+            if(currentEvent != null)
+                currentEvent(event);
         })
 
         return {
@@ -75,18 +66,7 @@ var MyToolkit = (function() {
                 group.move(x, y);
             },
             /**
-             * Captures the MouseEvent when the button is hovered upon.
-             *
-             * @memberOf MyToolkit.Button
-             * @function onOver
-             * @inner
-             * @param {Event} overEventHandler Event fired upon mouse hover.
-             */
-            onOver: function(overEventHandler){
-                overEvent = overEventHandler;
-            },
-            /**
-             * Captures the MouseEvent when the button is clicked.
+             * Captures the Event when the button is clicked.
              *
              * @memberOf MyToolkit.Button
              * @function onClick
@@ -97,26 +77,15 @@ var MyToolkit = (function() {
                 clickEvent = clickEventHandler;
             },
             /**
-             * Captures the MouseEvent when the button's click is released.
+             * Captures the Event when the button's state is changed.
              *
              * @memberOf MyToolkit.Button
-             * @function onUp
+             * @function onStateChange
              * @inner
-             * @param {Event} upEventHandler Event fired upon click release.
+             * @param {Event} currentEventHandler Event fired upon button state change.
              */
-            onUp: function(upEventHandler){
-                upEvent = upEventHandler;
-            },
-            /**
-             * Captures the MouseEvent when the cursor leaves the button.
-             *
-             * @memberOf MyToolkit.Button
-             * @function onOut
-             * @inner
-             * @param {Event} outEventHandler Event fired upon mouse leaving the button.
-             */
-            onOut: function(outEventHandler){
-                outEvent = outEventHandler;
+            onStateChange: function(currentEventHandler){
+                currentEvent = currentEventHandler;
             },
             /**
              * Allows the setting of a custom label on the button.
@@ -140,7 +109,7 @@ var MyToolkit = (function() {
      *
      * @namespace Checkbox
      * @memberOf MyToolkit
-     * @returns {{onCheck: (function(): boolean), move: MyToolkit.Checkbox.move, onClick: MyToolkit.Checkbox.onClick, label: MyToolkit.Checkbox.label}}
+     * @returns {{move: MyToolkit.Checkbox.move, onClick: MyToolkit.Checkbox.onClick, onStateChange: MyToolkit.Checkbox.onStateChange, label: MyToolkit.Checkbox.label, getCheckedState: (function(): boolean)}}
      * @constructor
      */
     var Checkbox = function() {
@@ -155,27 +124,25 @@ var MyToolkit = (function() {
         text.hide();
 
         var clickEvent = null;
-        var checkState = 'Idle';
+        var currentEvent = null;
         var isChecked = false;
 
         rect.click(function(event) {
             if(clickEvent != null)
                 clickEvent(event);
+            if(currentEvent != null)
+                currentEvent(event);
 
             if (isChecked === false) {
                 this.fill({color: '#ffb5a7'});
                 text.show(); // Add checkmark
                 isChecked = true;
-                checkState = 'Active';
             }
             else {
                 this.fill({color: '#fcd5ce'});
                 text.hide(); // Remove checkmark
                 isChecked = false;
-                checkState = 'Idle'
             }
-
-            console.log("Checked state:", isChecked, "State:", checkState)
         })
 
         return {
@@ -203,14 +170,25 @@ var MyToolkit = (function() {
                 clickEvent = clickEventHandler;
             },
             /**
-             * Returns whether or not the checkbox is checked.
+             * Captures the Event when the checkbox's state is changed.
              *
              * @memberOf MyToolkit.Checkbox
-             * @function onCheck
+             * @function onStateChange
              * @inner
-             * @returns {boolean} isChecked Returns true if the checkbox is checked and false if unchecked.
+             * @param {Event} currentEventHandler Event fired upon checkbox state change.
              */
-            onCheck: function(){
+            onStateChange: function(currentEventHandler){
+                currentEvent = currentEventHandler;
+            },
+            /**
+             * Returns true if the checkbox is checked, false if unchecked.
+             *
+             * @memberOf MyToolkit.Checkbox
+             * @function getCheckedState
+             * @inner
+             * @returns {boolean} isChecked
+             */
+            getCheckedState: function(){
                 return isChecked;
             },
             /**
@@ -230,12 +208,12 @@ var MyToolkit = (function() {
     }
 
     /**
-     * Creates a group of 2+ radio buttons.
+     * Creates a group of radio buttons with 2+ options as specified by the user.
      *
      * @namespace RadioGroup
      * @memberOf MyToolkit
-     * @param {Number} numOptions The number of radio buttons in the group. Must be 2 or greater.
-     * @returns {{getSelected: (function(): number), move: MyToolkit.RadioGroup.move, onClick: MyToolkit.RadioGroup.onClick, label: MyToolkit.RadioGroup.label}}
+     * @param {Number} numOptions The number of buttons to be present in the radio group.
+     * @returns {{getSelected: (function(): *), move: MyToolkit.RadioGroup.move, onClick: MyToolkit.RadioGroup.onClick, getActive: (function(): boolean), onStateChange: MyToolkit.RadioGroup.onStateChange, label: MyToolkit.RadioGroup.label}}
      * @constructor
      */
     var RadioGroup = function(numOptions) {
@@ -244,10 +222,9 @@ var MyToolkit = (function() {
         }
         else {
             var clickEvent = null;
-            var radioState = 'Idle'
-            console.log('State: Idle');
+            var currentEvent = null;
             var isSelected = false;
-            var buttonSelected = 0;
+            var buttonSelected;
 
             var group = globalWindow.group()
             var currentY = globalWindow.y();
@@ -259,10 +236,12 @@ var MyToolkit = (function() {
             }
 
             group.click(function(event) {
-                if(clickEvent != null)
-                    clickEvent(event);
-
                 if (SVG(event.target).type === "circle"){
+                    if(clickEvent != null)
+                        clickEvent(event);
+                    if(currentEvent != null)
+                        currentEvent(event);
+
                     SVG(event.target).fill('#e0fbfc');
                     isSelected = true;
 
@@ -272,8 +251,6 @@ var MyToolkit = (function() {
                     for (var child of group.children()){
                         if (child.cy() === selectedCY) {
                             buttonSelected = optionCounter + 1
-                            radioState = 'Active'
-                            console.log("Button selected:", buttonSelected, 'State: Active');
                         }
                         else {
                             if (child.type === "circle") {
@@ -308,18 +285,41 @@ var MyToolkit = (function() {
                  * @param {Event} clickEventHandler Event fired upon mouse click.
                  */
                 onClick: function(clickEventHandler){
+                    isSelected = true;
                     clickEvent = clickEventHandler;
                 },
                 /**
-                 * Returns which n button is selected, with the topmost button being 1. A value of 0 signifies that no button is selected.
+                 * Captures the Event when the radio group's state is changed.
+                 *
+                 * @memberOf MyToolkit.RadioGroup
+                 * @function onStateChange
+                 * @inner
+                 * @param currentEventHandler
+                 */
+                onStateChange: function(currentEventHandler){
+                    currentEvent = currentEventHandler;
+                },
+                /**
+                 * Returns the last n button selected.
                  *
                  * @memberOf MyToolkit.RadioGroup
                  * @function getSelected
                  * @inner
-                 * @returns {number} buttonSelected The n option selected.
+                 * @returns {Number}
                  */
                 getSelected: function(){
                     return buttonSelected;
+                },
+                /**
+                 * Returns true if the radio group is active, meaning that one button is selected. False if no buttons are selected.
+                 *
+                 * @memberOf MyToolkit.RadioGroup
+                 * @function getActive
+                 * @inner
+                 * @returns {boolean} isSelected
+                 */
+                getActive: function(){
+                    return isSelected;
                 },
                 /**
                  * Allows the setting of a custom label for each radio group button.
@@ -455,12 +455,10 @@ var MyToolkit = (function() {
         var lastPosition = rect.y();
 
         slider.mousedown(function(event){
-            console.log("Scrollbar state: Ready")
             mouseDown = true;
         })
 
         globalWindow.mouseup(function(){
-            console.log("Scrollbar state: Idle")
             mouseDown = false;
         })
 
