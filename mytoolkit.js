@@ -30,12 +30,11 @@ var MyToolkit = (function() {
         group.add(rect);
         globalGroup.add(group);
 
-        // State Changes
         var clickEvent = null;
         var currentEvent = null;
 
         rect.click(function(event){
-            this.fill({ color: '#e0fbfc'});
+            this.fill({ color: '#fec89a'});
             if(clickEvent != null)
                 clickEvent(event);
             if(currentEvent != null)
@@ -242,7 +241,7 @@ var MyToolkit = (function() {
                     if(currentEvent != null)
                         currentEvent(event);
 
-                    SVG(event.target).fill('#e0fbfc');
+                    SVG(event.target).fill('#fec89a');
                     isSelected = true;
 
                     var selectedCY = SVG(event.target).cy(); // The selected circle retrieved from the mouse click
@@ -346,7 +345,7 @@ var MyToolkit = (function() {
     }
 
     /**
-     * Creates a textbox.
+     * Creates a text box.
      *
      * @namespace TextBox
      * @memberOf MyToolkit
@@ -594,7 +593,7 @@ var MyToolkit = (function() {
      *
      * @namespace ProgressBar
      * @memberOf MyToolkit
-     * @returns {{getInc: (function(): number), move: MyToolkit.ProgressBar.move, increment: MyToolkit.ProgressBar.increment, setWidth: MyToolkit.ProgressBar.setWidth, setInc: MyToolkit.ProgressBar.setInc}}
+     * @returns {{getInc: (function(): number), onIncrement: MyToolkit.ProgressBar.onIncrement, move: MyToolkit.ProgressBar.move, increment: MyToolkit.ProgressBar.increment, onStateChange: MyToolkit.ProgressBar.onStateChange, setWidth: MyToolkit.ProgressBar.setWidth, setInc: MyToolkit.ProgressBar.setInc}}
      * @constructor
      */
     var ProgressBar = function(){
@@ -608,6 +607,21 @@ var MyToolkit = (function() {
         var incValue = 0;
 
         var incrementEvent = null;
+        var currentEvent = null;
+
+        progressRect.mouseover(function(event){
+            this.fill({ color: '#fec89a'});
+            if(currentEvent != null)
+                currentEvent(event);
+            if(incrementEvent != null)
+                incrementEvent(event);
+        })
+
+        progressRect.mouseout(function(event){
+            this.fill({ color: '#ffb5a7'});
+            if(currentEvent != null)
+                currentEvent(event);
+        })
 
         return {
             /**
@@ -673,7 +687,31 @@ var MyToolkit = (function() {
                 else{
                     progressRect.width(0);
                 }
-            }
+            },
+            /**
+             * Captures the Event when the progress bar's state is changed.
+             *
+             * @memberOf MyToolkit.ProgressBar
+             * @function onStateChange
+             * @inner
+             * @param {Event} currentEventHandler Event fired upon progress bar state change.
+             */
+            onStateChange: function(currentEventHandler){
+                currentEvent = currentEventHandler;
+            },
+            /**
+             * Captures the Event when the progress bar is incremented. Viewable only when the progress bar's state is in focus.
+             *
+             * @memberOf MyToolkit.ProgressBar
+             * @function onIncrement
+             * @inner
+             * @param {Event} incrementEventHandler Event fired upon progress bar incrementation.
+             */
+            onIncrement: function(incrementEventHandler){
+                if (progressRect.width() != incValue){
+                    incrementEvent = incrementEventHandler;
+                }
+            },
         }
     }
 

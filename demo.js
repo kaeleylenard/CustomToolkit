@@ -108,7 +108,7 @@ scrollbar.onStateChange((function(e){
 var progressbar = new MyToolkit.ProgressBar;
 progressbar.setWidth(300);
 progressbar.move(350, 350);
-progressbar.setInc(2);
+progressbar.setInc(0);
 console.log("Progress bar increment:", progressbar.getInc());
 progressbar.increment(20)
 setInterval(inc, 750);
@@ -122,4 +122,17 @@ function inc(){
     } else {
         progressbar.increment(20);
     }
+    progressbar.onIncrement((function(e){
+        console.log("[Progress bar] has incremented", e);
+    }))
 }
+
+progressbar.onStateChange((function(e){
+    if (e.type === 'mouseover'){
+        console.log("[Progress bar] Current state: In Focus", e);
+    }
+    else if (e.type === 'mouseout'){
+        console.log("[Progress bar] Current state: Out of Focus", e);
+    }
+}))
+
