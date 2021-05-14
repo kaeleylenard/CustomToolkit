@@ -136,3 +136,7 @@ progressbar.onStateChange((function(e){
     }
 }))
 
+var flashcard = new MyToolkit.FlashCard;
+flashcard.move(50, 450);
+flashcard.setTerm("User Experience (UX)");
+flashcard.setDefinition("How a user interacts with a product or service");

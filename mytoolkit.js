@@ -491,7 +491,7 @@ var MyToolkit = (function() {
             mouseDown = true;
         })
 
-        globalWindow.mouseup(function(){
+        slider.mouseup(function(){
             if (currentEvent != null)
                 currentEvent(event)
             mouseDown = false;
@@ -715,7 +715,91 @@ var MyToolkit = (function() {
         }
     }
 
-    return {Window, Button, Checkbox, RadioGroup, TextBox, ScrollBar, ProgressBar}
+    /**
+     * Creates a flash card.
+     *
+     * @namespace FlashCard
+     * @memberOf MyToolkit
+     * @returns {{move: MyToolkit.FlashCard.move, setDefinition: setDefinition, setTerm: setTerm}}
+     * @constructor
+     */
+    var FlashCard = function(){
+        var group = globalWindow.group()
+        var rect = globalWindow.rect(300, 200).fill('#fcd5ce').radius(10);
+        group.add(rect);
+        globalGroup.add(group);
+
+        var term = globalWindow.text("Term").font({family: 'Verdana', anchor: 'middle'});
+        term.center(rect.cx(), rect.cy());
+        group.add(term);
+
+        var definition = globalWindow.text(function(add) {
+            add.tspan('Lorem ipsum lorem ipsum').newLine().font({family: 'Verdana'});
+            add.tspan('Lorem ipsum lorem ipsum').newLine().font({family: 'Verdana'});
+        })
+
+        definition.center(rect.cx(), rect.cy());
+        group.add(definition);
+        definition.hide();
+
+        var isFlipped = false;
+
+        rect.click(function(event){
+            if (isFlipped === false) {
+                this.fill({ color: '#fec89a'});
+                term.hide();
+                definition.show();
+                isFlipped = true;
+            }
+            else {
+                this.fill({ color: '#fcd5ce'});
+                definition.hide();
+                term.show();
+                isFlipped = false;
+            }
+        })
+
+        return {
+            /**
+             * Moves the flash card to a specific (x, y) coordinate in the window.
+             *
+             * @memberOf MyToolkit.FlashCard
+             * @function move
+             * @inner
+             * @param {Number} x The desired x coordinate of the flash card.
+             * @param {Number} y The desired y coordinate of the flash card.
+             */
+            move: function(x, y){
+                group.move(x, y);
+            },
+            /**
+             * Sets the front-facing term of the flash card.
+             *
+             * @memberOf MyToolkit.FlashCard
+             * @function setTerm
+             * @inner
+             * @param {String} string The term, limited to 25 characters.
+             */
+            setTerm: function(string){
+                term.text(string.substring(0, 26))
+            },
+            /**
+             * Sets the back-facing definition of the flash card.
+             *
+             * @memberOf MyToolkit.FlashCard
+             * @function setDefinition
+             * @inner
+             * @param {String} string The definition, limited to 50 characters.
+             */
+            setDefinition: function(string){
+                var lastSpace1 = string.substring(0, 24).lastIndexOf(" ");
+                definition.children()[0].text(string.substring(0, lastSpace1));
+                definition.children()[1].text(string.substring(lastSpace1 + 1, 49))
+            }
+        }
+    }
+
+    return {Window, Button, Checkbox, RadioGroup, TextBox, ScrollBar, ProgressBar, FlashCard}
 
 }());
 
