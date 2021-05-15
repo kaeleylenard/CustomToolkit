@@ -7,7 +7,7 @@ var docBtn = new MyToolkit.Button;
 docBtn.move(700, 600);
 docBtn.label("Link to JSDoc");
 docBtn.onClick(function(e){
-    window.open("out/mytoolkit.html");
+    window.open("out/MyToolkit.html");
 })
 
 // Implement a MyToolkit Button
