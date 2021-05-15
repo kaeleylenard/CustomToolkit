@@ -2,6 +2,13 @@ import {MyToolkit} from './mytoolkit.js';
 
 new MyToolkit.Window(1000, 1000);
 
+// Button that links to documentation
+var docBtn = new MyToolkit.Button;
+docBtn.move(700, 600);
+docBtn.label("Link to JSDoc");
+docBtn.onClick(function(e){
+    window.open("./out/mytoolkit.html");
+})
 
 // Implement a MyToolkit Button
 var btn = new MyToolkit.Button;

@@ -293,7 +293,7 @@ var MyToolkit = (function() {
                  * @memberOf MyToolkit.RadioGroup
                  * @function onStateChange
                  * @inner
-                 * @param currentEventHandler
+                 * @param {Event} currentEventHandler Event fired upon radio group state change.
                  */
                 onStateChange: function(currentEventHandler){
                     currentEvent = currentEventHandler;
@@ -450,10 +450,10 @@ var MyToolkit = (function() {
             /**
              * Gets the text inputted by the user in the text box.
              *
-             * @memberOf MyToolkit.Textbox
+             * @memberOf MyToolkit.TextBox
              * @function getText
              * @inner
-             * @returns {String}
+             * @returns {String} string
              */
             getText: function(){
                 return text.text();
